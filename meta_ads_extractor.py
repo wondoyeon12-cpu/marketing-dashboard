@@ -37,6 +37,7 @@ def get_meta_ads_landing_urls(keyword):
         return True
 
     with sync_playwright() as p:
+        browser = None
         try:
             headless_mode = os.getenv("PLAYWRIGHT_HEADLESS", "true").lower() == "true"
             browser = p.chromium.launch(headless=headless_mode, args=["--disable-blink-features=AutomationControlled"])
@@ -96,7 +97,8 @@ def get_meta_ads_landing_urls(keyword):
         except Exception as e:
             print(f"Meta 스크래핑 에러: {e}")
         finally:
-            browser.close()
+            if browser:
+                browser.close()
             
     # 결과를 대시보드 호환 형식으로 변환
     for u in urls:

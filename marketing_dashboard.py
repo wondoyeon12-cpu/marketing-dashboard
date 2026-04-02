@@ -14,6 +14,26 @@ from urllib.parse import urlparse
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# ---------------- Playwright 자동 설치 (클라우드 환경용) ----------------
+def ensure_playwright_installed():
+    import subprocess
+    try:
+        # 이미 설치 확인용 명령어 실행
+        subprocess.run(["playwright", "--version"], capture_output=True, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        try:
+            st.info("📦 라이브러리 및 브라우저 초기 설정을 진행 중입니다. 잠시만 기다려 주세요... (약 30~60초 소요)")
+            # 벙커(서버) 내부에 크로미움 브라우저를 강제로 심습니다.
+            subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
+            st.success("✅ 설정 완료! 분석 엔진이 가동되었습니다.")
+            st.rerun()
+        except Exception as e:
+            st.error(f"⚠️ 브라우저 설치 중 오류 발생: {e}")
+
+if os.getenv("STREAMLIT_RUNTIME_ENV"): # 스트림릿 클라우드 환경에서만 작동
+    import sys
+    ensure_playwright_installed()
+
 # ---------------- Streamlit 설정 & CSS ----------------
 st.set_page_config(page_title="코다리 마케팅 대시보드", page_icon="🐟", layout="wide")
 
